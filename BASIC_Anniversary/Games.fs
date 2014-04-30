@@ -60,7 +60,7 @@ type FlipFlop() =
             | 11 -> (this:>IInteractiveServer).NewState
             | x -> 
                 if data.[x-1] = 1 then data.[x-1] <- 0 else data.[x-1] <- 1
-                { state with FlipFlopState.Xs = data } :> IInteractiveState 
+                { state with FlipFlopState.Xs = data; start = false } :> IInteractiveState 
             
 
 //            let auxb rev curr
