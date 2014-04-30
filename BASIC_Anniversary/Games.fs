@@ -59,7 +59,7 @@ type FlipFlop() =
             | 0 -> { state with FlipFlopState.Xs = [|for x in 1..10 -> 1|] } :> IInteractiveState 
             | 11 -> (this:>IInteractiveServer).NewState
             | x -> 
-                if data.[x-1] = 1 then data.[x] <- 0 else data.[x] <- 1
+                if data.[x-1] = 1 then data.[x-1] <- 0 else data.[x-1] <- 1
                 { state with FlipFlopState.Xs = data } :> IInteractiveState 
             
 
