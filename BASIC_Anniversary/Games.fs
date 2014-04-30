@@ -11,58 +11,58 @@ module Utils =
         |> Array.map(fun s -> String.Format("<para>{0}</para>", s.Replace(" "," ")))
         |> fun t ->  String.Join("\r\n", t)
     String.Format("<summary>{0}</summary>", text)
-
-type FlipFlopState =
-    { Xs : int array; start : bool; rnd : float; prev : int; count : int }
-    with
-        interface IInteractiveState with
-            member this.DisplayText = 
-                if this.start then
-                    """                     FLIP FLOP
-                    CREATIVE COMPUTING MORRISTOWN, NEW JERSEY
-                    THE OBJECT OF THE PUZZLE IS TO CHANGE THIS :
-            
-                    X X X X X X X X X X
-
-                    TO THIS :
-                     
-                    0 0 0 0 0 0 0 0 0 0
-
-                    BY TYPING THE NUMBER CORRESPONDING TO THE POSITION OF THE
-                    LETTER ON SOME NUMBERS, ONE POSITION WILL CHANGE, ON
-                    OTHERS, TWO WILL CHANGE.  TP RESET LINE TO ALL X'S, TYPE 0
-                    (ZERO) AND TO START OVER IN THE MIDDLE OF A GAME, TYPE 
-                    11 (ELEVEN)
-            
-                    HERE IS THE STARTING LINE OF X'S.
-            
-                    1 2 3 4 5 6 7 8 9 10
-                    X X X X X X X X X X 
-            
-                    INPUT THE NUMBER?""" |> Utils.wrapAndSplit
-                else
-                    String.Join(" ", [for i in 1..10 -> i.ToString()]) 
-                    + Environment.NewLine 
-                    + String.Join(" ", [for x in this.Xs -> if x = 0 then "0" else "X"])
-                    |> Utils.wrapAndSplit 
-            member __.DisplayOptions = [0..11] |> List.map(fun i -> (i.ToString(),box i)) 
-
-type FlipFlop() =
-    interface IInteractiveServer with
-        member this.NewState = 
-            { FlipFlopState.Xs = [|for x in 1..10 -> 1|]; 
-              start = true; rnd = Utils.rnd.NextDouble(); prev = 0; count = 0 } :> IInteractiveState
-        member this.ProcessResponse(client,choice) =
-            let state = client :?> FlipFlopState
-            let data = Array.copy state.Xs
-            let choice = unbox<int> choice
-            match choice with
-            | 0 -> { state with FlipFlopState.Xs = [|for x in 1..10 -> 1|] } :> IInteractiveState 
-            | 11 -> (this:>IInteractiveServer).NewState
-            | x -> 
-                if data.[x-1] = 1 then data.[x-1] <- 0 else data.[x-1] <- 1
-                { state with FlipFlopState.Xs = data; start = false } :> IInteractiveState 
-            
+//
+//type FlipFlopState =
+//    { Xs : int array; start : bool; rnd : float; prev : int; count : int }
+//    with
+//        interface IInteractiveState with
+//            member this.DisplayText = 
+//                if this.start then
+//                    """                     FLIP FLOP
+//                    CREATIVE COMPUTING MORRISTOWN, NEW JERSEY
+//                    THE OBJECT OF THE PUZZLE IS TO CHANGE THIS :
+//            
+//                    X X X X X X X X X X
+//
+//                    TO THIS :
+//                     
+//                    0 0 0 0 0 0 0 0 0 0
+//
+//                    BY TYPING THE NUMBER CORRESPONDING TO THE POSITION OF THE
+//                    LETTER ON SOME NUMBERS, ONE POSITION WILL CHANGE, ON
+//                    OTHERS, TWO WILL CHANGE.  TP RESET LINE TO ALL X'S, TYPE 0
+//                    (ZERO) AND TO START OVER IN THE MIDDLE OF A GAME, TYPE 
+//                    11 (ELEVEN)
+//            
+//                    HERE IS THE STARTING LINE OF X'S.
+//            
+//                    1 2 3 4 5 6 7 8 9 10
+//                    X X X X X X X X X X 
+//            
+//                    INPUT THE NUMBER?""" |> Utils.wrapAndSplit
+//                else
+//                    String.Join(" ", [for i in 1..10 -> i.ToString()]) 
+//                    + Environment.NewLine 
+//                    + String.Join(" ", [for x in this.Xs -> if x = 0 then "0" else "X"])
+//                    |> Utils.wrapAndSplit 
+//            member __.DisplayOptions = [0..11] |> List.map(fun i -> (i.ToString(),box i)) 
+//
+//type FlipFlop() =
+//    interface IInteractiveServer with
+//        member this.NewState = 
+//            { FlipFlopState.Xs = [|for x in 1..10 -> 1|]; 
+//              start = true; rnd = Utils.rnd.NextDouble(); prev = 0; count = 0 } :> IInteractiveState
+//        member this.ProcessResponse(client,choice) =
+//            let state = client :?> FlipFlopState
+//            let data = Array.copy state.Xs
+//            let choice = unbox<int> choice
+//            match choice with
+//            | 0 -> { state with FlipFlopState.Xs = [|for x in 1..10 -> 1|] } :> IInteractiveState 
+//            | 11 -> (this:>IInteractiveServer).NewState
+//            | x -> 
+//                if data.[x-1] = 1 then data.[x-1] <- 0 else data.[x-1] <- 1
+//                { state with FlipFlopState.Xs = data; start = false } :> IInteractiveState 
+//            
 
 //            let auxb rev curr
 
@@ -189,4 +189,77 @@ type RockPaperScissors() =
                                  lastAIChoice = aiMove
                                  lastChoice = move
                                  showResult = false }  :> IInteractiveState
+
+type WaterInputState =
+    | Number of string
+    | Finished            
+    | Nothing
+type ChemistryState = { lives: int; acid: int; success:bool }
+type ChemistryInputState = 
+    | Start of ChemistryState
+    | WaterInput of string * ChemistryState
+    | Result of ChemistryState
+    interface IInteractiveState with
+          member this.DisplayText = 
+            match this with
+            | Start state -> 
+                "THE FICTIOUS CHEMICAL KRYPTOCYANIC ACID CAN ONLY BE" + Environment.NewLine +
+                "DILUTED BY THE RAIO OF 7 PARTS WATER TO 3 PARTS ACID." + Environment.NewLine +
+                "IF ANY OTHER RATIO IS ATTEMPTED, THE ACID BECOMES UNSTABLE" + Environment.NewLine +
+                "AND SOON EXPLODES. GIVEN THE AMOUNT OF ACID, YOU MUST" + Environment.NewLine +
+                "DECIDE HOW MUCH WATER TO ADD FOR DILUTION. IF YOU MISS" + Environment.NewLine +
+                "YOU FACE THE CONSEQUENCES" + 
+                (sprintf "\r\n\r\n%i LITRES OF KRYPTOCYANIC ACID. HOW MUCH WATER?" state.acid ) |> Utils.wrapAndSplit
+            | WaterInput(current,state) -> current
+            | Result state -> 
+                if state.success then 
+                    """GOOD JOB! YOU MAY BREATHE NOW, BUT DON'T INHALE THE FUMES!""" + Environment.NewLine + Environment.NewLine +
+                    (sprintf "\r\n%i LITRES OF KRYPTOCYANIC ACID. HOW MUCH WATER?" state.acid )
+                else 
+                    let  msg = 
+                        """SIZZLE! YOU HAVE JUST BEEN DESALINATED INTO A BLOB
+                        OF QUIVERING PROTOPLASM!"""
+                    if state.lives = 0 then 
+                        msg + Environment.NewLine +
+                        "YOUR 9 LIVES ARE USED, BUT YOU WILL BE LONG REMEMBERED FOR 
+                        YOUR CONTRIBUTIONS TO THE FIELD OF COMIC BOOK CHEMISTRY" |> Utils.wrapAndSplit
+                    else msg + 
+                         (sprintf "\r\n\r\n%i LITRES OF KRYPTOCYANIC ACID. HOW MUCH WATER?" state.acid ) |> Utils.wrapAndSplit
+                
+           
+          member this.DisplayOptions =                        
+            match this with                
+            | Result state when state.lives = 0 -> [] // game over
+            | Start _
+            | Result _
+            | WaterInput(_,_)-> // keep accepting numbers!                
+                ("# RESULT", box Nothing) 
+                :: ("[Enter]", box Finished) 
+                :: [ for x in 0..9 -> (x.ToString(), box (Number <| x.ToString()))]
+
+type Chemistry() =
+    interface IInteractiveServer  with
+        member this.NewState = 
+                let acid = Utils.rnd.Next(1,51)
+                Start { lives = 9; acid = acid; success=false } :> IInteractiveState
+        member this.ProcessResponse(state,choice) =
+            let choice = unbox<WaterInputState> choice
+            match state :?> ChemistryInputState, choice with
+            | Start _, Finished 
+            | Start _, Nothing -> state
+            | Start state, Number n -> WaterInput(n, state) :> IInteractiveState
+            | Result _, Finished 
+            | Result _, Nothing -> state
+            | Result state, Number n -> 
+                let acid = Utils.rnd.Next(1,51)
+                WaterInput(n, { state with acid = acid; success=false }) :> IInteractiveState
+            | WaterInput(current, _), Finished when String.IsNullOrWhiteSpace(current) -> state
+            | WaterInput(current, _), Nothing -> state
+            | WaterInput(current, state), Number n -> WaterInput(current + n, state) :> IInteractiveState
+            | WaterInput(current, state), Finished -> 
+                    let w = 7*state.acid/3
+                    let r = Int32.Parse(current)
+                    let d = abs(w-r)
+                    if d > w/20 then Result {state with lives = state.lives-1; success = false } :> IInteractiveState
+                    else Result {state with success = true} :> IInteractiveState
             
