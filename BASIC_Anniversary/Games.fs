@@ -90,3 +90,103 @@ type FlipFlop() =
 //            {state with Xs = data; start = false } :> IInteractiveClient
 
 
+type RockPaperScissorsSuccessStates =
+    | Win
+    | Lose 
+    | Draw
+
+type RockPaperScissorsStates =
+    | Rock
+    | Paper
+    | Scissors
+    with 
+        member this.winner(otherState) =
+            match this, otherState with
+            | Rock, Paper -> Lose
+            | Rock, Rock ->  Draw
+            | Rock, Scissors -> Win
+            | Paper, Rock -> Win
+            | Paper, Paper -> Draw
+            | Paper, Scissors -> Lose
+            | Scissors, Paper -> Win
+            | Scissors, Rock -> Lose
+            | Scissors, Scissors -> Draw
+        override this.ToString() =
+            match this with
+            | Rock -> "ROCK"
+            | Paper -> "PAPER"
+            | Scissors -> "SCISSORS"
+
+type RockPaperScissorsState = 
+    { maxGames:int; currentGame:int; wins: int; losses: int; draws: int; 
+      lastChoice : RockPaperScissorsStates; lastAIChoice : RockPaperScissorsStates; showResult:bool}
+    with    
+    member this.GetText() =
+        let result = 
+         " YOUR CHOICE WAS " + this.lastChoice.ToString() + Environment.NewLine +
+                " THIS IS MY CHOICE... 
+                ... " + this.lastAIChoice.ToString() + Environment.NewLine +
+                    match this.lastChoice.winner(this.lastAIChoice) with
+                    | Win -> " YOU WIN!!!"
+                    | Lose -> " WOW! I WIN!!"
+                    | Draw -> " TIE GAME. NO WINNER."  + Environment.NewLine 
+        match this with
+           | { maxGames = 0; currentGame = 0} ->
+              """  GAME OF ROCK, SCISSORS AND PAPER
+                   CREATIVE COMPUTING MORRISTOWN, NEW JERSEY
+                    
+                   HOW MANY GAMES WOULD YOU LIKE TO PLAY?""" |> Utils.wrapAndSplit
+           | state when state.maxGames+1 = state.currentGame -> 
+               result + Environment.NewLine +
+               "GAME OVER! " + Environment.NewLine + Environment.NewLine +
+               "HERE IS THE FINAL GAME SCORE " + Environment.NewLine +
+               (sprintf "I HAVE WON %i GAME(S).\r\nYOU HAVE WON %i GAME(S).\r\nAND %i GAMES ENDED IN A TIE." state.losses state.wins state.draws)
+               |> Utils.wrapAndSplit
+           | {currentGame = 1} as state ->
+               "GAME NUMBER " + state.currentGame.ToString() + Environment.NewLine +
+               "WHAT'S YOUR CHOICE?" 
+               |> Utils.wrapAndSplit
+           | state ->                 
+               result 
+               + "GAME NUMBER " + state.currentGame.ToString() + Environment.NewLine +
+               "WHAT'S YOUR CHOICE?" 
+               |> Utils.wrapAndSplit
+                
+    interface IInteractiveState with
+          member this.DisplayText = 
+            if this.showResult then this.GetText()
+            else  "SECRET!" // don't show anything on the property until they press dot (and then show it on the # RESULT property), else that would be cheating!
+           
+          member this.DisplayOptions =
+            match this with
+            | { maxGames = 0; currentGame = 0} -> [1..10] |> List.map(fun i -> (i.ToString(),box i)) 
+            | state when state.maxGames+1 = state.currentGame -> ["# RESULT", box None]
+            | state -> ["# RESULT", box None; "ROCK", box (Some Rock); "PAPER", box (Some Paper); "SCISSORS", box (Some Scissors )]
+
+type RockPaperScissors() =
+    interface IInteractiveServer  with
+        member this.NewState = { maxGames = 0; currentGame = 0; wins = 0; draws = 0; 
+                                 losses = 0; lastChoice=Paper; lastAIChoice=Paper; showResult=true } :> IInteractiveState
+        member this.ProcessResponse(state,choice) =  
+            let state = state :?> RockPaperScissorsState
+            if state.currentGame = 0 && state.maxGames = 0 then 
+                {state with maxGames = unbox<int>choice; currentGame = 1} :> IInteractiveState
+            else
+                match unbox<RockPaperScissorsStates option>choice with
+                | None -> // this is the special state that shows the last result
+                        {state with showResult = true} :> IInteractiveState
+                | Some(move) ->
+                    // get random AI move and return new state with updated bits
+                    let aiMove = match Utils.rnd.Next(1,4) with
+                                 | 1 -> Rock
+                                 | 2 -> Paper
+                                 | 3 -> Scissors
+                    let result = move.winner(aiMove)
+                    { state with currentGame = state.currentGame + 1; 
+                                 wins = if result = Win then state.wins + 1 else state.wins
+                                 losses = if result = Lose then state.losses + 1 else state.losses
+                                 draws = if result = Draw then state.draws + 1 else state.draws
+                                 lastAIChoice = aiMove
+                                 lastChoice = move
+                                 showResult = false }  :> IInteractiveState
+            
