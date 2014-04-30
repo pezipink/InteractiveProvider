@@ -45,7 +45,7 @@ type FlipFlopState =
                     + Environment.NewLine 
                     + String.Join(" ", [for x in this.Xs -> if x = 0 then "0" else "X"])
                     |> Utils.wrapAndSplit 
-            member __.DisplayOptions = [0..11] |> List.map(fun i -> (i.ToString(),i)) 
+            member __.DisplayOptions = [0..11] |> List.map(fun i -> (i.ToString(),box i)) 
 
 type FlipFlop() =
     interface IInteractiveServer with
@@ -55,6 +55,7 @@ type FlipFlop() =
         member this.ProcessResponse(client,choice) =
             let state = client :?> FlipFlopState
             let data = Array.copy state.Xs
+            let choice = unbox<int> choice
             match choice with
             | 0 -> { state with FlipFlopState.Xs = [|for x in 1..10 -> 1|] } :> IInteractiveState 
             | 11 -> (this:>IInteractiveServer).NewState

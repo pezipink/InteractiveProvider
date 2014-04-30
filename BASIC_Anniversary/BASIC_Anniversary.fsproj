@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Games.fs" />
+    <Compile Include="MineSweeper.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InteractiveProviderInterfaces\InteractiveProviderInterfaces.fsproj">

@@ -2,8 +2,8 @@
 
 type IInteractiveState=
     abstract member DisplayText : string
-    abstract member DisplayOptions : (string * int) list
+    abstract member DisplayOptions : (string * obj) list
 
 type IInteractiveServer = 
     abstract member NewState : IInteractiveState
-    abstract member ProcessResponse : IInteractiveState * int -> IInteractiveState
+    abstract member ProcessResponse : IInteractiveState * obj -> IInteractiveState
