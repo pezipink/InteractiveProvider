@@ -7,6 +7,7 @@ see http://pinksquirrellabs.com/post/2014/05/01/BASIC%E2%80%99s-50th-Anniversary
 
 Currently suports the following games:
 
-*MineSweeper
-*Rock Paper Scissors
-*Chemistry
+MineSweeper
+
+Rock Paper Scissors
+Chemistry
