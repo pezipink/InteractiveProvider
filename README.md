@@ -10,4 +10,5 @@ Currently suports the following games:
 MineSweeper
 
 Rock Paper Scissors
+
 Chemistry
