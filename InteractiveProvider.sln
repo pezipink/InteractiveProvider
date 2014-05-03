@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BASIC_Anniversary", "BASIC_
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "InteractiveProviderInterfaces", "InteractiveProviderInterfaces\InteractiveProviderInterfaces.fsproj", "{345CDABE-8DD0-47D0-9B0A-497A96B1DCE2}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FightingFantasy", "FightingFantasy\FightingFantasy.fsproj", "{04985F56-C0F6-4E55-B50A-FFE1B1A12999}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{345CDABE-8DD0-47D0-9B0A-497A96B1DCE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{345CDABE-8DD0-47D0-9B0A-497A96B1DCE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{345CDABE-8DD0-47D0-9B0A-497A96B1DCE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04985F56-C0F6-4E55-B50A-FFE1B1A12999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04985F56-C0F6-4E55-B50A-FFE1B1A12999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04985F56-C0F6-4E55-B50A-FFE1B1A12999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04985F56-C0F6-4E55-B50A-FFE1B1A12999}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
