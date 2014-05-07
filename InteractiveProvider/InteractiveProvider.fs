@@ -60,11 +60,14 @@ type InteractiveProvider (config : TypeProviderConfig) as this =
                     let asm = Assembly.LoadFile(file)
                     asm.GetTypes()
                     |> Array.choose(fun t -> 
-                        t.GetInterfaces() 
-                        |> Array.exists(fun i -> i.Name = "IInteractiveServer")
-                        |> fun b -> if b then Some t else None)
-                with
-                | _ -> [||] )
+                        try
+                            t.GetInterfaces() 
+                            |> Array.exists(fun i -> i.Name = "IInteractiveServer")
+                            |> fun b -> if b then Some t else None
+                        with
+                        | _ -> None
+                    )
+                with ex -> [||] )
 
         getGameServers()
         |> Array.map(fun t -> 

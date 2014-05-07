@@ -1,0 +1,14 @@
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FightingFantasy.dll.config
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FightingFantasy.XML
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FightingFantasy.dll
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FightingFantasy.pdb
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FSharp.Core.dll
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FSharp.Data.SqlProvider.dll
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\InteractiveProviderInterfaces.dll
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\InteractiveProviderInterfaces.pdb
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\InteractiveProviderInterfaces.xml
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FSharp.Data.SqlProvider.pdb
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FSharp.Data.SqlProvider.xml
+F:\GIT\InteractiveProvider\FightingFantasy\bin\Debug\FSharp.Core.xml
+F:\GIT\InteractiveProvider\FightingFantasy\obj\Debug\FightingFantasy.dll
+F:\GIT\InteractiveProvider\FightingFantasy\obj\Debug\FightingFantasy.pdb

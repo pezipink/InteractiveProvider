@@ -262,4 +262,40 @@ type Chemistry() =
                     let d = abs(w-r)
                     if d > w/20 then Result {state with lives = state.lives-1; success = false } :> IInteractiveState
                     else Result {state with success = true} :> IInteractiveState
+
+type ExampleState =
+    | Start of target: int 
+    | Guess of lastGuess : int * target : int
+    | Success
+    interface IInteractiveState with
+        member this.DisplayText = 
+            // create the text that will appear on the property
+            match this with
+            | Start _ -> "I HAVE PICKED A NUMBER FROM 1 TO 100! SEE IF YOU CAN GUESS IT!"
+            | Guess(last,targ) ->
+                if last > targ then "WRONG!! MY NUMBER IS LESS THAN THAT! GUESS AGAIN FOOL!"
+                else "WRONG!! MY NUMBER IS MORE THAN THAT! GUESS AGAIN FOOL!"
+            | Success -> "YOU WIN!!"
+        member this.DisplayOptions =
+            match this with
+            | Start _ 
+            | Guess(_,_) -> 
+                // in all cases except for a win, show 1 - 100 properties
+                [for x in 1..100 -> (x.ToString(),box x)]
+            | Success -> [] // game over
+
+type ExampleGame() =
+    interface IInteractiveServer  with
+        member this.NewState = // create the inital state
+            Start (Utils.rnd.Next(1,101))  :> IInteractiveState
+        member this.ProcessResponse(state,choice) =
+            let newGuess = unbox<int> choice
+            match state :?> ExampleState with
+            | Start target 
+            | Guess(_,target) when target = newGuess -> Success :> IInteractiveState
+            | Success -> failwith "this case is not possible"
+            | Start target 
+            | Guess(_,target) -> Guess(newGuess,target) :> IInteractiveState
             
+            
+    
