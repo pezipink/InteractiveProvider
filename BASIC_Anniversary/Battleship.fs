@@ -6,22 +6,26 @@ open System.Text
 type Square =
     | Empty
     | Hit
+    | Miss
     | Target
     override this.ToString() =
-        match this with Empty | Target -> "_" | Hit -> "#"
+        match this with Empty | Target -> "_" | Hit -> "#" | Miss -> "O"
 
 let gridWith (x,y) value (grid:_ array array) =
     let newGrid = Array.copy grid
     newGrid.[x].[y] <- value
     newGrid
 
-let shoot onHit onMiss (x,y) (grid:_ array array) =
+let collides (x,y) (grid:_ array array) =
     match grid.[x].[y] with
-    | Target ->      onHit grid
-    | Empty | Hit -> onMiss grid
+    | Target             -> true
+    | Empty | Hit | Miss -> false
 
-let collides = shoot (fun _ -> true) (fun _ -> false)
-let makeShot (x,y) = shoot (fun grid -> grid |> gridWith (x,y) Hit) id (x,y)
+let makeShot (x,y) (grid:_ array array) =
+    match grid.[x].[y] with
+    | Target     -> grid |> gridWith (x,y) Hit
+    | Empty      -> grid |> gridWith (x,y) Miss
+    | Hit | Miss -> grid
 
 type BattleshipState =
     { human: Square array array; cpu:Square array array }
@@ -43,14 +47,15 @@ type BattleshipState =
                 this.cpu
                 |> Array.mapi (fun i -> Array.mapi (fun j s -> (i, j, s)))
                 |> Array.collect id
-                |> Array.filter (fun (_,_,i) -> i <> Hit)
+                |> Array.filter (fun (_,_,i) -> i <> Hit && i <> Miss)
                 |> Array.map (fun (x,y,_) -> sprintf "Ensign, target X%i Y%i !" x y, box (x,y))
                 |> List.ofArray
             ("# Battleship Grid", box (-1,-1)) :: options
 
 type Battleship() =
     let random = Random().Next
-    let intialGrid size = Array.create size <| Array.create size Empty
+    let initialGrid size = [| for i in 1..10 -> Array.create size Empty |]
+    let gridCopy grid = [| for i in grid -> [| for j in i -> j |] |]
     let rec generateShips shipList grid =
         let rec addShip length =
             let horizontal = random 2 = 0
@@ -70,12 +75,14 @@ type Battleship() =
         
     interface IInteractiveServer with
         member this.NewState =
-            { human=generateShips [2;5] <| intialGrid 10;
-              cpu=generateShips [2;5] <| intialGrid 10 } :> IInteractiveState
+            { human=generateShips [2;5] <| initialGrid 10;
+              cpu=generateShips [2;5] <| initialGrid 10 } :> IInteractiveState
         member this.ProcessResponse(state,choice) =
             let state = state :?> BattleshipState
+            let human = gridCopy state.human
+            let cpu = gridCopy state.human
             match unbox<int*int> choice with
             | (-1,-1) -> state :> IInteractiveState          
             | choice ->
-                { state with human = state.human |> makeShot (random 10, random 10)
-                             cpu   = state.cpu   |> makeShot choice } :> IInteractiveState
+                { state with human = human |> makeShot (random 10, random 10)
+                             cpu   = cpu   |> makeShot choice } :> IInteractiveState
