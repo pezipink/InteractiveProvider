@@ -8,7 +8,7 @@ type Square =
     | Hit
     | Target
     override this.ToString() =
-        match this with Empty | Target -> " " | Hit -> "#"
+        match this with Empty | Target -> "_" | Hit -> "#"
 
 let gridWith (x,y) value (grid:_ array array) =
     let newGrid = Array.copy grid
@@ -32,10 +32,10 @@ type BattleshipState =
             append "<summary>"
             this.human
             |> Array.iter (fun s ->
-                s |> Array.iter (fun i ->
                     append "<para>"
-                    sb.AppendFormat("|{0}", i) |> ignore
-                    append "|</para>"))
+                    s |> Array.iter (fun i ->
+                    sb.AppendFormat("|{0}", i) |> ignore)
+                    append "|</para>")
             append "</summary>"
             sb.ToString()
         member this.DisplayOptions =
@@ -51,26 +51,27 @@ type BattleshipState =
 type Battleship() =
     let random = Random().Next
     let intialGrid size = Array.create size <| Array.create size Empty
-    let rec generateShips width height shipList grid =
+    let rec generateShips shipList grid =
         let rec addShip length =
             let horizontal = random 2 = 0
             let constant = random length
-            let vary = length - height
-            let dots = [vary .. vary + length - 1]
+            let vary =  10 - length
+            let dots = [|vary .. vary + length - 1|]
             let points =
                 match horizontal with
-                | true  -> Some [|1,2|]
-                | false -> Some [||]
-            match points with
-            | Some points -> Array.fold (fun g s -> gridWith s Target g) grid points
-            | None        -> addShip length
+                | true  -> Array.map (fun y -> constant,y) dots
+                | false -> Array.map (fun x -> x,constant) dots
+            match points |> Array.forall (fun i -> not <| collides i grid) with
+            | true  -> Array.fold (fun g s -> gridWith s Target g) grid points
+            | false -> addShip length
         match shipList with
-        | ship :: rest -> generateShips width height rest <| addShip ship
+        | ship :: rest -> generateShips rest <| addShip ship
         | []           -> grid
         
     interface IInteractiveServer with
         member this.NewState =
-            { human=[||]; cpu=[||] } :> IInteractiveState
+            { human=generateShips [2;5] <| intialGrid 10;
+              cpu=generateShips [2;5] <| intialGrid 10 } :> IInteractiveState
         member this.ProcessResponse(state,choice) =
             let state = state :?> BattleshipState
             match unbox<int*int> choice with
