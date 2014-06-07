@@ -3,14 +3,15 @@
 open InteractiveProvider.Interfaces
 open System
 
+[<AutoOpen>]
 module Utils =
-   let rnd =  System.Random(System.DateTime.Now.Millisecond)
-   let wrapAndSplit (text:string) =
-    let text = 
-        text.Split([|Environment.NewLine|], StringSplitOptions.None)
-        |> Array.map(fun s -> String.Format("<para>{0}</para>", s.Replace(" "," ")))
-        |> fun t ->  String.Join("\r\n", t)
-    String.Format("<summary>{0}</summary>", text)
+    let rnd =  System.Random(System.DateTime.Now.Millisecond)
+    let wrapAndSplit (text:string) =
+        let text = 
+            text.Split([|Environment.NewLine|], StringSplitOptions.None)
+            |> Array.map(fun s -> String.Format("<para>{0}</para>", s.Replace(" "," ")))
+            |> fun t ->  String.Join("\r\n", t)
+        String.Format("<summary>{0}</summary>", text)
 //
 //type FlipFlopState =
 //    { Xs : int array; start : bool; rnd : float; prev : int; count : int }
