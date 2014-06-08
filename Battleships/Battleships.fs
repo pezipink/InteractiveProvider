@@ -278,11 +278,7 @@ type Battleships() =
                 | "Finish" -> 
                     // TODO: think should try and wait for initial TCP connection here before proceeding
                     // maybe need another "Connecting..." state or similar?
-                    let pt = 
-                        match player with
-                        | Server _ -> Server(createSocket SocketType.Server)
-                        | Client _ -> Client(createSocket (SocketType.Client current))
-                    InitialConnection(Human current, pt,None)
+                    InitialConnection(Human current, player,None)
                 | "Delete" -> ExtractIPAddress( (if current.Length = 0 then "" else current.Substring(0,current.Length-1)), player)
                 | s -> ExtractIPAddress(current + s, player)
             | InitialConnection(ot,pt,mp) ->
@@ -290,17 +286,21 @@ type Battleships() =
                 | "Setup" -> SetupBattleships(5,(0,0), Horizontal,Array2D.init 10 10 (fun _ _ -> Water), ot, pt)
                 | "Wait" -> 
                     match pt, mp with
-                    | Server socket, None -> 
+                    | Server _, None -> 
+                        let socket = createSocket SocketType.Server
                         let mp = {message=true; result=false} 
                         let task = Async.StartAsTask(connectSendReceive socket mp)                        
-                        InitialConnection(ot,pt,Some mp)
-                    | Client socket, None -> 
+                        InitialConnection(ot,Server(socket),Some mp)
+                    | Client _, None -> 
+                        let (Human ip) = ot
+                        let socket = createSocket (SocketType.Client ip)
                         let mp = {message=true; result=false} 
                         let task = Async.StartAsTask(connectReceiveSend socket mp)
-                        InitialConnection(ot,pt,Some mp)
+                        InitialConnection(ot,Client(socket),Some mp)
                     | Server socket, Some({result=false})
                     | Client socket, Some({result=false}) ->
                         // keep waiting
+                        printfn "waiting...."
                         InitialConnection(ot,pt,mp)
                     | _ -> failwith "" // this should be impossible
                 | _ -> failwith ""

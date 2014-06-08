@@ -39,7 +39,7 @@ type Socket with
 
 
 let private ipHostInfo = Dns.Resolve(Dns.GetHostName())
-let private port = 11000
+let private port = 42000
 
 type SocketType = Server | Client of string
 
@@ -49,12 +49,14 @@ let createSocket socketType =
     | Server ->
         let localIPAddress = ipHostInfo.AddressList.[0]    
         let localEndPoint = new IPEndPoint(localIPAddress, port)
-        socket.Bind(localEndPoint)
+        socket.Bind(localEndPoint)        
     | Client ipString ->
         let ipAddress = IPAddress.Parse(ipString)
         let remoteEndPoint  = new IPEndPoint(ipAddress, port)
         socket.Bind(remoteEndPoint)
     socket
+
+
 
 //
 //let connectSendReceive (socket : Socket) =
@@ -70,7 +72,7 @@ let createSocket socketType =
 
 let connectReceiveSend (socket : Socket)  (messagePair : MessagePair<'a, 'b>) =
     async {
-        do! socket.ConnectAsync(ipHostInfo.AddressList.[0], 11000)
+        do! socket.ConnectAsync(ipHostInfo.AddressList.[0], 42000)
         let flags = new SocketFlags()
         let fmt = System.Runtime.Serialization.Formatters.Binary.BinaryFormatter()
  
@@ -95,7 +97,7 @@ let connectReceiveSend (socket : Socket)  (messagePair : MessagePair<'a, 'b>) =
 
 let connectSendReceive (socket : Socket)  (messagePair : MessagePair<'a, 'b>) =
     async {
-        do! socket.ConnectAsync(ipHostInfo.AddressList.[0], 11000)
+        do! socket.ConnectAsync(ipHostInfo.AddressList.[0], 42000)
         let flags = new SocketFlags()
         printfn "Connected to remote host." 
         let fmt = System.Runtime.Serialization.Formatters.Binary.BinaryFormatter()
