@@ -5,13 +5,13 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>fa546cc8-1b93-49a3-8f81-20a9acc36b4c</ProjectGuid>
+    <ProjectGuid>09f966e5-b1a9-41a9-85a4-c19fec2df4b8</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>BASIC_Anniversary</RootNamespace>
-    <AssemblyName>BASIC_Anniversary</AssemblyName>
+    <RootNamespace>Battleships</RootNamespace>
+    <AssemblyName>Battleships</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
-    <Name>BASIC_Anniversary</Name>
+    <Name>Battleships</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\BASIC_Anniversary.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Battleships.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\BASIC_Anniversary.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Battleships.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -40,10 +40,13 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Games.fs" />
-    <Compile Include="MineSweeper.fs" />
+    <Compile Include="TCP.fs" />
+    <Compile Include="Battleships.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\InteractiveProviderInterfaces\InteractiveProviderInterfaces.fsproj">

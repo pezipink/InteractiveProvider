@@ -125,7 +125,7 @@ type ReferenceType =
 type Reference =
     { Key : ReferenceKey
       Text : string
-      Modifiers : (AttributeName * int) list // this is for any special adjustments to make to the player upon enterting this location eg -2 STAMINA
+      Modifiers : (AttributeName * int) list // this is for any special adjustments to make to the player upon entering this location eg -2 STAMINA
       Items : (Item * Currency option) list // items on the floor (auto picked up), or in a shop and their cost if so
       Type : ReferenceType }
 

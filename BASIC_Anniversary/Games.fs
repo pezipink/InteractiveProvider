@@ -3,7 +3,6 @@
 open InteractiveProvider.Interfaces
 open System
 
-[<AutoOpen>]
 module Utils =
     let rnd =  System.Random(System.DateTime.Now.Millisecond)
     let wrapAndSplit (text:string) =

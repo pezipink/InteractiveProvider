@@ -1,0 +1,10 @@
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\Battleships.XML
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\Battleships.dll
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\Battleships.pdb
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\FSharp.Core.dll
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\InteractiveProviderInterfaces.dll
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\InteractiveProviderInterfaces.pdb
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\InteractiveProviderInterfaces.xml
+F:\GIT\InteractiveProvider\Battleships\bin\Debug\FSharp.Core.xml
+F:\GIT\InteractiveProvider\Battleships\obj\Debug\Battleships.dll
+F:\GIT\InteractiveProvider\Battleships\obj\Debug\Battleships.pdb
