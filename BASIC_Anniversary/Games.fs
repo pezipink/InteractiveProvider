@@ -2,8 +2,12 @@
 
 open InteractiveProvider.Interfaces
 open System
+open System.Linq
 
+[<AutoOpen>]
 module Utils =
+    type System.String with
+        member x.ValueOption() = if String.IsNullOrWhiteSpace x then None else Some x 
     let rnd =  System.Random(System.DateTime.Now.Millisecond)
     let wrapAndSplit (text:string) =
         let text = 
@@ -298,4 +302,152 @@ type ExampleGame() =
             | Guess(_,target) -> Guess(newGuess,target) :> IInteractiveState
             
             
+type Direction = 
+    | Up
+    | Down
+    | Left
+    | Right
+
+type ``2048State`` =
+    | NewGame 
+    | GameOn of Map<int*int, int>
+    | GameOver of bool
+    interface IInteractiveState with
+        member x.DisplayOptions: (string * obj) list = 
+            match x with
+            | NewGame  -> ["Begin Game", box ""]
+            | GameOn(data) -> ["# Show Grid", box "show";"Up", box "up";"Down", box "down";"Left", box "left";"Right", box "right";]
+            | GameOver(true) -> []
+            | GameOver(false) -> []
+        
+        member x.DisplayText: string = 
+            match x with
+            | NewGame  -> "Welcome to 2048, Type Provider edition!\r\nwww.pinksquirrellabs.com" |> Utils.wrapAndSplit
+            | GameOn(data) -> 
+                let sb = System.Text.StringBuilder()
+                for y in 0..3 do
+                    sb.AppendLine(String('-', (6 * 4) + 4)) |> ignore
+                    for x in 0..3 do                        
+                        let v = 
+                            match Map.tryFind (x,y) data with
+                            | Some v -> v
+                            | None -> 0
+                        sb.Append("|").Append(sprintf "%s%s" (if v = 0 then "......" else v.ToString()) (String('.', if v = 0 then 0 else 6-v.ToString().Length))) |> ignore
+                    sb.AppendLine("|") |> ignore
+                    
+                sb.AppendLine(String('-', (6 * 4) + 4)) |> ignore
+                sb.ToString() |> Utils.wrapAndSplit
+            | GameOver(true) -> "Awesome! You managed to get to the 2048 tile! Congratulations, you win :)"  |> Utils.wrapAndSplit
+            | GameOver(false) -> "You lose, unlucky :("  |> Utils.wrapAndSplit
+        
+
+type ``2048``() =
+    interface IInteractiveServer with
+        member x.NewState: IInteractiveState = NewGame :> IInteractiveState        
+        member x.ProcessResponse(state: IInteractiveState, response: obj): IInteractiveState = 
+            let (|Win|Lose|Continue|) (data:Map<int*int,int>) =
+                ((true,0),[for x in 0..3 do
+                           for y in 0..3 do
+                           yield x,y])
+                ||> List.fold(fun (b,highest) k -> 
+                    match Map.tryFind k data with
+                    | Some v -> if v > highest then (b,v) else (b,highest)
+                    | None -> (false,highest))
+                |> function
+                    | (_, 2048) -> Win
+                    | (true, _) -> Lose
+                    | _ -> Continue data
+
+            let shift (x,y) = function
+                | Up    -> (x,y-1)
+                | Down  -> (x,y+1)
+                | Left  -> (x-1,y)
+                | Right -> (x+1,y)
+
+            let moves = function
+                | Up -> 
+                    [for x in 0..3 do
+                     for y in 0..3 do 
+                        yield x,y]        
+                | Down -> 
+                    [for x in 0..3 do
+                     for y in 3..-1..0 do 
+                        yield x,y]
+                | Left ->
+                    [for y in 0..3 do
+                     for x in 0..3 do 
+                        yield x,y]  
+                | Right ->  
+                    [for y in 0..3 do
+                     for x in 3..-1..0 do 
+                        yield x,y]
+
+            let rec move direction data (x,y) (px,py)  =
+                    match x, y with
+                    | -1, _
+                    | _, -1
+                    | 4, _
+                    | _, 4 -> (px,py)
+                    | x, y when Map.containsKey (x,y) data -> (px,py)
+                    | _ -> move direction data (shift (x,y) direction) (x,y) 
+
+            let replace direction data inputs =
+                let move = move direction
+                (data,inputs)
+                ||> List.fold(fun m p -> 
+                    match move m (shift p direction) p with
+                    | newpos when newpos = p -> m
+                    | newpos -> let v = m.[p] in m |> Map.remove p |> Map.add newpos v)
+
+            let compress direction data =
+                direction
+                |> moves
+                |> List.filter(fun k -> Map.containsKey k data)
+                |> replace direction data
+
+            let merge direction (data:Map<int*int,int>) =   
+                let moves = direction |> moves 
+                let rec aux data = function        
+                    | (x,y) :: (x',y') :: t ->
+                        match Map.tryFind (x,y) data, Map.tryFind(x',y') data with
+                        | Some first, Some second when first = second -> 
+                            data 
+                            |> Map.remove (x,y)
+                            |> Map.remove (x',y')
+                            |> Map.add (x,y) (first*2)
+                            |> fun d -> aux d t
+                        |_ -> aux data ((x',y') :: t)
+                    | _ -> data
+                aux data moves
+    
+            let step direction =  (compress direction) >> (merge direction) >> (compress direction)
+
+            let rnd = System.Random(System.DateTime.Now.Millisecond)
+                            
+            match (state:?>``2048State``), (response :?> String).ValueOption() with 
+            | NewGame, _ -> 
+                let x, y = rnd.Next(0,4), rnd.Next(0,4)
+                GameOn( Map.ofList[(x,y),2])
+                
+            | GameOn(data), Some "show" -> GameOn(data)
+            | GameOn(data), dir ->
+                let dir = 
+                    match dir with
+                    | Some "left" -> Left
+                    | Some "right" -> Right
+                    | Some "up" -> Up
+                    | Some "down" -> Down
+                    | _ -> failwith ""
+                match step dir data with             
+                | Win -> GameOver true
+                | Lose -> GameOver false
+                | Continue data -> 
+                    let rec aux () =
+                        let x, y = rnd.Next(0,4), rnd.Next(0,4)
+                        if Map.containsKey (x,y) data then aux()
+                        else x,y
+                    GameOn(data.Add(aux(),2))                
+            | _, _ -> failwith ""
+
+            |> fun x -> x :> IInteractiveState
     
