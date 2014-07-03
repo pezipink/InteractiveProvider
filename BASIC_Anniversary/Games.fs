@@ -405,20 +405,17 @@ type ``2048``() =
                 |> List.filter(fun k -> Map.containsKey k data)
                 |> replace direction data
 
-            let merge direction (data:Map<int*int,int>) =   
-                let moves = direction |> moves 
-                let rec aux data = function        
-                    | (x,y) :: (x',y') :: t ->
+            let merge direction data =   
+                let moves = direction |> moves |> Seq.pairwise |> Seq.toList    
+                (data,moves)
+                ||> List.fold( fun data ((x,y), (x',y')) ->
                         match Map.tryFind (x,y) data, Map.tryFind(x',y') data with
                         | Some first, Some second when first = second -> 
                             data 
                             |> Map.remove (x,y)
                             |> Map.remove (x',y')
-                            |> Map.add (x,y) (first*2)
-                            |> fun d -> aux d t
-                        |_ -> aux data ((x',y') :: t)
-                    | _ -> data
-                aux data moves
+                            |> Map.add (x,y) (first*2)                
+                        |_ -> data)
     
             let step direction =  (compress direction) >> (merge direction) >> (compress direction)
 
