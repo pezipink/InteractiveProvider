@@ -12,3 +12,7 @@ MineSweeper
 Rock Paper Scissors
 
 Chemistry
+
+Fighting Fantasy (UNFINISHED!)
+
+Battlehsips (UNFINISHED!)
