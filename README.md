@@ -15,4 +15,4 @@ Chemistry
 
 Fighting Fantasy (UNFINISHED!)
 
-Battlehsips (UNFINISHED!)
+Battleships (UNFINISHED!)
