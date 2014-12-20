@@ -1,4 +1,5 @@
-﻿namespace FightingFantasy
+﻿// THIS IS UNFINISHED AND NOT REALLY PLAYABLE!!
+namespace FightingFantasy
 
 open System
 open FSharp.Data.Sql

@@ -1,4 +1,5 @@
-﻿module Battleship
+﻿// THIS IS UNFINISHED AND NOT REALLY PLAYABLE!!
+module Battleship
 open InteractiveProvider.Interfaces
 open System
 open System.Text
@@ -61,6 +62,9 @@ let gridWith (x,y) value (grid:_ array array) =
     newGrid.[x].[y] <- value
     newGrid
 
+type TCPData = { mutable data : MessagePair<bool,bool> option}
+    with static member Blank = { data = None }
+
 type BattleShipStates =
     // initial spiel about battleships
     | Introduction
@@ -71,7 +75,7 @@ type BattleShipStates =
     // looped state that allows the player to enter an IP address via properties.
     | ExtractIPAddress of string * PlayerType
     //
-    | InitialConnection of OpponentType * PlayerType * MessagePair<bool,bool> option
+    | InitialConnection of OpponentType * PlayerType * TCPData
     // looped state that allows players to move, rotate and place
     // each of their 5 BattleShips
     | SetupBattleships of ShipNumber * Location * Rotation * BattleShipGrid * OpponentType * PlayerType
@@ -115,10 +119,9 @@ type BattleShipStates =
                       
                      Current input : %s" current
             | InitialConnection(_,_,connected) ->
-                match connected with
+                match connected.data with
                 | Some({result=true}) -> "Successfully connected!"
-                | None -> "Awaiting connection..."
-                | _ -> "! Something went horribly wrong when connecting !"
+                | _ -> "Awaiting connection..."
             | SetupBattleships(ship, (y,x), rotation, grid, _, _) ->
                 // show the current grid of placed ships, and the ship currently being placed 
                 let shipSize = match ship with  2 -> 3 | 1 -> 2 | n -> n
@@ -174,10 +177,9 @@ type BattleShipStates =
                  yield "[Finish]", box "Finish"
                  yield "[Delete]", box "Delete"]
             | InitialConnection(_,_,connected) ->
-                match connected with
+                match connected.data with
                 | Some({result=true}) -> ["Setup Battleships!", box "Setup"]
-                | None -> ["Keep waiting...", box "Wait"]
-                | _ -> []
+                | _ -> ["Keep waiting...", box "Wait"]
             | SetupBattleships(nextShip, (y,x), rotation, grid, _, _) -> 
                 // note there are 2 ships sized 3 
                 // only show the possible moves given the size of the ship
@@ -278,25 +280,39 @@ type Battleships() =
                 | "Finish" -> 
                     // TODO: think should try and wait for initial TCP connection here before proceeding
                     // maybe need another "Connecting..." state or similar?
-                    InitialConnection(Human current, player,None)
+                    InitialConnection(Human current, player,TCPData.Blank)
                 | "Delete" -> ExtractIPAddress( (if current.Length = 0 then "" else current.Substring(0,current.Length-1)), player)
                 | s -> ExtractIPAddress(current + s, player)
             | InitialConnection(ot,pt,mp) ->
                 match (choice :?> string) with
                 | "Setup" -> SetupBattleships(5,(0,0), Horizontal,Array2D.init 10 10 (fun _ _ -> Water), ot, pt)
                 | "Wait" -> 
-                    match pt, mp with
+                    match pt, mp.data with
                     | Server _, None -> 
-                        let socket = createSocket SocketType.Server
-                        let mp = {message=true; result=false} 
-                        let task = Async.StartAsTask(connectSendReceive socket mp)                        
-                        InitialConnection(ot,Server(socket),Some mp)
+                        let (Human ip) = ot
+                        let x = System.Threading.Thread.CurrentThread.ManagedThreadId                        
+                        
+                        if listening = false then
+                            listening <- true
+                            let socket = createSocket (SocketType.Server "192.168.0.2")
+                            socket.Listen(10)
+                            socket.Accept()
+                            
+                            //john.Post(AcceptClient (fun _ -> mp.data<-Some({message=false; result=false})))
+                            
+//                            async{
+//                                let! handler = socket.AcceptAsync()
+//                                mp.data<-Some({message=true; result=true})    
+//                            } |> Async.Start
+                            InitialConnection(ot,Server(socket),mp)
+                        else
+                            InitialConnection(ot,Server(socket),mp)
                     | Client _, None -> 
                         let (Human ip) = ot
-                        let socket = createSocket (SocketType.Client ip)
-                        let mp = {message=true; result=false} 
-                        let task = Async.StartAsTask(connectReceiveSend socket mp)
-                        InitialConnection(ot,Client(socket),Some mp)
+                        // this will block here until connected... not much to do about it
+                        let socket = createSocket (SocketType.Client ip) 
+                        mp.data<-Some({message=true; result=true})    
+                        InitialConnection(ot,Client(socket),mp)
                     | Server socket, Some({result=false})
                     | Client socket, Some({result=false}) ->
                         // keep waiting
