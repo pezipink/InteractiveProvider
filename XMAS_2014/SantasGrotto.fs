@@ -88,7 +88,7 @@ type ItemType =
 
         member this.Text =
             match this with
-            | MincePie _ -> "an mince pie"
+            | MincePie _ -> "a mince pie"
             | Carrot Rotten -> "a rotten carrot"
             | Carrot NotSoGood -> "a carrot that looks past its best"
             | Carrot Amazing -> "an awesome looking carrot"
@@ -359,15 +359,15 @@ module GrottoCore =
             | Some Empty 
             | Some HWall
             | Some VWall 
-            | Some (Door true) -> point :: acc // stop here but include this tile
-            | _ -> unfoldLine newPoint direction (count+1) (point :: acc)
+            | Some (Door true) -> newPoint :: acc // stop here but include this tile
+            | _ -> unfoldLine newPoint direction (count+1) (newPoint :: acc)
         match map.[point] with
         | Corridor 
         | Door false ->
             // for a corridor we can simply see 3 tiles n, s, e, w along it
             Direction.AllDirections
-            |> List.map(fun d -> unfoldLine point d 0 [] )
-            |> List.collect id
+            |> List.map(fun d -> unfoldLine point d 0 [point] )
+            |> List.collect id            
             |> Set.ofList
         | Door true
         | RoomFloor 
@@ -531,13 +531,11 @@ This roguelike was developed in the spirit of the original Rogue, 1980~ !
                   | WinState -> 
                     """CONGRATULATIONS! 
 
-                    You have managed to best the drunken hordes and escape the
-                    grotto.  Christmas will go ahead like normal next year!"""
+                    You have managed to best the drunken hordes and escape the grotto.  Christmas will go ahead like normal next year!"""
                   | LoseState -> 
                     """GAME OVER!!
 
-                    Ultimately poor Saint Nick was bested by the drunken hordes,
-                    sealing the fate of Christmas for future generations!
+                    Ultimately poor Saint Nick was bested by the drunken hordes, sealing the fate of Christmas for future generations!
                     """
                   | _ -> toText() 
                   |> Utils.wrapAndSplit
@@ -614,7 +612,7 @@ type ``The North Pole``() =
     interface IInteractiveServer with
         member this.NewState = 
             let pieMap = 
-                ["Green"; "Blue"; "Red"; "Purple"; "Pink"; "Yellow"; "Normal";"Multi-Coloured"] 
+                ["green"; "blue"; "red"; "purple"; "pink"; "yellow"; "normal";"multi-coloured"] 
                 |> List.sortBy(fun _ -> rnd.Next(10)) 
                 |> List.zip [Poison;Teleport;Healing;HealthUp;HealthDown;Food;Experience;Psy] |> Map.ofList
             { state = NewState; status = ["Welcome to Level 1, Saint Nick!"]; 
@@ -650,9 +648,9 @@ type ``The North Pole``() =
                                     | Elf -> D 1 4
                                     | Reindeer -> D 1 6
                                     | _ -> 0
-                                (e::out,(sprintf "the %s %s you" e.etype.Name s )::status,dmg+d,items)
+                                (e::out,(sprintf "The %s %s you" e.etype.Name s )::status,dmg+d,items)
                             else
-                                (e::out,(sprintf "the %s misses you" e.etype.Name)::status,dmg,items)
+                                (e::out,(sprintf "The %s misses you" e.etype.Name)::status,dmg,items)
                             
                         elif dist > 1 then
                             if Utils.rnd.NextDouble() <= 0.9 then
@@ -707,40 +705,42 @@ type ``The North Pole``() =
                     let state =
                         match item.itemType with
                         | MincePie Healing -> 
-                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["you feel somewhat better!"]}
+                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["You feel somewhat better!"]}
                         | MincePie HealthDown -> 
-                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["yuck.. you feel permenantly less healthy!"]}
+                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["Yuck.. you feel permenantly less healthy!"]}
                         | MincePie HealthUp -> 
-                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["after eating the pie you feel stronger!"]}
+                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["After eating the pie you feel stronger!"]}
                         | MincePie Poison -> 
-                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["yuck! that was a bad mince pie...."]}
+                            {state with santa = {state.santa with inventory = inv; entity = ia state.santa.entity }; status = ["Yuck! That was a bad mince pie...."]}
                         | MincePie Teleport -> 
                             let santa =  { state.santa with inventory = inv; entity = ia state.santa.entity }
                             let fov = GrottoCore.calculateFov santa.entity.loc state.CurrentLevel.tiles state.CurrentLevel.rooms
                             let level = { state.CurrentLevel with discoveredTiles = Set.union state.CurrentLevel.discoveredTiles fov;}
-                            {state with santa = santa ; status =["wow! that was one crazy mince pie!"]; levelData=state.levelData.Add(state.grottoLevel,level) ;currentFov=fov;  }
+                            {state with santa = santa ; status =["Wow! That was one crazy mince pie!"]; levelData=state.levelData.Add(state.grottoLevel,level) ;currentFov=fov;  }
                         | MincePie Psy -> 
                             let t = rnd.Next(1,31)
-                            {state with santa = {state.santa with inventory = inv; turnsLeftUnderTheInfluence=t }; status = ["woah... I'm not sure that was a mince pie..."]}
+                            {state with santa = {state.santa with inventory = inv; turnsLeftUnderTheInfluence=t }; status = ["Woah... I'm not sure that was a mince pie..."]}
                         | MincePie Experience ->                         
                             let cl = GrottoCore.getLevel state.santa.exp
-                            let xp = state.santa.exp + 30
+                            let xp = state.santa.exp + 20
                             let cl' = GrottoCore.getLevel (state.santa.exp+xp)
-                            let santa = { state.santa with exp = (state.santa.exp+xp) }
-                            let status =
-                                if cl' <> cl then ["an interesting pie indeed! you feel wiser..."; sprintf "welcome to level %i!" cl'] 
-                                else ["an interesting pie indeed! you feel wiser..."]
-                            {state with santa = {state.santa with inventory = inv; exp = state.santa.exp + 30 }; status = status }
+                            let santa, status =
+                                if cl' <> cl then 
+                                    let hp = (cl - cl') * 8
+                                    { state.santa with exp = (state.santa.exp+xp); entity = { state.santa.entity with health = GrottoCore.incMaxHealth hp state.santa.entity.health }}, ["an interesting pie indeed! you feel wiser..."; sprintf "welcome to level %i!" cl'] 
+                                else { state.santa with exp = (state.santa.exp+xp) }, ["An interesting pie indeed! you feel wiser..."]
+                            
+                            {state with santa = {santa with inventory = inv; exp = state.santa.exp + 20 }; status = status }
                         | MincePie Food ->                             
-                            {state with santa = {state.santa with inventory = inv; hunger = state.santa.hunger + 50}; status = ["wow! that was a fantastic mince pie! you feel much less hungry!"] }
+                            {state with santa = {state.santa with inventory = inv; hunger = state.santa.hunger + 50}; status = ["Wow! that was a fantastic mince pie! you feel much less hungry!"] }
                         | Carrot Amazing ->                             
-                            {state with santa = {state.santa with inventory = inv; hunger = state.santa.hunger + 30}; status = ["you feel less hungry"] }
+                            {state with santa = {state.santa with inventory = inv; hunger = state.santa.hunger + 30}; status = ["You feel less hungry"] }
                         | Carrot NotSoGood -> 
                             let amt = D 5 2
-                            {state with santa = {state.santa with inventory = inv; hunger = state.santa.hunger + 20}; status = ["you feel somewhat less hungry"] }
+                            {state with santa = {state.santa with inventory = inv; hunger = state.santa.hunger + 20}; status = ["You feel somewhat less hungry"] }
                         | Carrot Rotten -> 
                             let amt = if rndBool() then 0 else D 1 4 
-                            let status = if amt = 0 then ["you feel a little less hungry"] else ["yuck!  you feel less healthy"]
+                            let status = if amt = 0 then ["You feel a little less hungry"] else ["Yuck!  you feel less healthy"]
                             {state with santa = {state.santa with inventory = inv; hunger = state.santa.hunger + 10; 
                                                                  entity = { state.santa.entity with health = GrottoCore.damageHealth amt state.santa.entity.health } } ; status = status }
                         | Presents _ -> state // should not be possible
@@ -851,10 +851,10 @@ type ``The North Pole``() =
                             let cl' = GrottoCore.getLevel (state.santa.exp+xp)
                             let santa = { state.santa with exp = (state.santa.exp+xp) }
                             if cl' <> cl then 
-                                let santa = {santa with entity = { santa.entity with health = fst santa.entity.health, (snd santa.entity.health) + 6 }}
-                                endTurn { state with status = [sprintf "you destroy the %s." e.etype.Name;sprintf "welcome to level %i!" cl'] ; levelData = state.levelData.Add(state.grottoLevel,level); santa = santa} :>_
+                                let santa = {santa with entity = { santa.entity with health = fst santa.entity.health, (snd santa.entity.health) + 8 }}
+                                endTurn { state with status = [sprintf "You destroy the %s." e.etype.Name;sprintf "Welcome to level %i!" cl'] ; levelData = state.levelData.Add(state.grottoLevel,level); santa = santa} :>_
                             else
-                                endTurn { state with status = [sprintf "you destroy the %s." e.etype.Name] ; levelData = state.levelData.Add(state.grottoLevel,level); santa = santa} :>_
+                                endTurn { state with status = [sprintf "You destroy the %s." e.etype.Name] ; levelData = state.levelData.Add(state.grottoLevel,level); santa = santa} :>_
                     else
 
                     let entities = {e with active = true } :: (state.CurrentLevel.entities|>List.filter(fun e' -> e' <> e))
@@ -862,18 +862,18 @@ type ``The North Pole``() =
                     endTurn { state with status = [sprintf "you miss the %s" e.etype.Name] ; levelData = state.levelData.Add(state.grottoLevel,level)} :>_
                   | None -> 
                     match state.CurrentLevel.tiles.TryFind newPos with
-                    | None | Some HWall | Some VWall | Some (Door true) | Some Empty -> {state with state = MainState; status = ["you cannot move in that direction!"] }  :> _
+                    | None | Some HWall | Some VWall | Some (Door true) | Some Empty -> {state with state = MainState; status = ["You cannot move in that direction!"] }  :> _
                     | _ ->                       
                         let status = 
                           let temp =
                               match state.CurrentLevel.items |> List.tryFind(fun i -> i.loc = Some newPos ) with
                               | Some i -> match i.itemType with
-                                          | MincePie pt -> [ sprintf "there is a %s mince pie here" state.pieMap.[pt]]
-                                          | Carrot Rotten -> ["there is a rotten carrot here"]
-                                          | Carrot NotSoGood -> ["there is a carrot here that looks past its best"]
-                                          | Carrot Amazing -> ["there is an awesome looking carrot here"]
-                                          | Presents i when i = 1 -> ["there is a present here"]
-                                          | Presents i -> [sprintf "there is a pile of %i presents here" i]
+                                          | MincePie pt -> [ sprintf "There is a %s mince pie here" state.pieMap.[pt]]
+                                          | Carrot Rotten -> ["There is a rotten carrot here"]
+                                          | Carrot NotSoGood -> ["There is a carrot here that looks past its best"]
+                                          | Carrot Amazing -> ["There is an awesome looking carrot here"]
+                                          | Presents i when i = 1 -> ["There is a present here"]
+                                          | Presents i -> [sprintf "There is a pile of %i presents here" i]
                               | None -> []
 
                           match state.CurrentLevel.tiles |> Map.tryFind( newPos) with
