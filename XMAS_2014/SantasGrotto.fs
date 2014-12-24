@@ -393,7 +393,7 @@ module GrottoCore =
     let itemAction tiles item entity =
         match item with
         | MincePie Healing -> let amt = D 1 6 in {entity with health = restoreHealth amt entity.health }
-        | MincePie Poison -> let amt = D 1 6 in {entity with health = restoreHealth amt entity.health }
+        | MincePie Poison -> let amt = D 1 6 in {entity with health = damageHealth amt entity.health }
         | MincePie HealthUp -> let amt = D 1 6 in {entity with health = incMaxHealth amt entity.health }
         | MincePie HealthDown -> let amt = D 1 6 in {entity with health = decMaxHealth amt entity.health }
         | MincePie Teleport -> 
@@ -650,7 +650,7 @@ type ``The North Pole``() =
                                     | Elf -> D 1 4
                                     | Reindeer -> D 1 6
                                     | _ -> 0
-                                (e::out,(sprintf "the %s %s you %i %i" e.etype.Name s d dmg)::status,dmg+d,items)
+                                (e::out,(sprintf "the %s %s you" e.etype.Name s )::status,dmg+d,items)
                             else
                                 (e::out,(sprintf "the %s misses you" e.etype.Name)::status,dmg,items)
                             
@@ -839,7 +839,7 @@ type ``The North Pole``() =
                   match state.CurrentLevel.entities |> List.tryFind(fun e -> e.loc = newPos) with
                   | Some e -> 
                     // implement combat
-                    if D 1 20 > (16-(GrottoCore.getLevel state.santa.exp)) then
+                    if D 1 20 > (14-(GrottoCore.getLevel state.santa.exp)) then
                         let dmg = D 1 6 + (GrottoCore.getLevel state.santa.exp)
                         let h = (fst e.health ) - dmg
                         if h >= 0 then 
