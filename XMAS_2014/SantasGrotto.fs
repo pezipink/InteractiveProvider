@@ -489,7 +489,7 @@ type SantasGrottoState =
                         for x = 0 to GrottoCore.width do
                             // display previously discovered tiles, and anything else that is currently visible.
                             // this is slow but who cares
-                            let showTile p = true // if Set.contains p this.CurrentLevel.discoveredTiles then true else false
+                            let showTile p = if Set.contains p this.CurrentLevel.discoveredTiles then true else false
                             let point = {X=x;Y=y}
                             match eLookup.TryFind(point) with
                             | Some e when this.currentFov.Contains point -> sb.Append (drawet e.etype) |> ignore
@@ -570,12 +570,18 @@ This roguelike was developed in the spirit of the original Rogue, 1980~ !
                      "No",   response :>_ ]
                 | GetItemState f -> 
                     let f = match f with UseItem _ -> UseItem | _ -> DropItem
-                    let count = this.santa.inventory |> Seq.groupBy(fun i -> i.itemType) |> Seq.map(fun (k,v) -> k, Seq.length v ) |> Map.ofSeq
-                    let items = this.santa.inventory |> List.map(fun i -> let c = if count.[i.itemType] > 1 then sprintf " (%i)" count.[i.itemType] else ""
-                                                                          match i.itemType with 
-                                                                          | MincePie pt -> sprintf "a %s mince pie%s" this.pieMap.[pt] c, f(Some i) :> obj
-                                                                          | _ ->  (sprintf "%s%s" i.itemType.Text c, f(Some i) :> obj))
-
+                    let count = 
+                        this.santa.inventory 
+                        |> Seq.groupBy(fun i -> i.itemType) 
+                        |> Seq.map(fun (k,v) -> k, Seq.length v ) 
+                        |> Map.ofSeq
+                    let items = 
+                        this.santa.inventory 
+                        |> List.map(fun i -> let c = if count.[i.itemType] > 1 then sprintf " (%i)" count.[i.itemType] else ""
+                                             match i.itemType with 
+                                             | MincePie pt -> sprintf "a %s mince pie%s" this.pieMap.[pt] c, f(Some i) :> obj
+                                             | _ ->  (sprintf "%s%s" i.itemType.Text c, f(Some i) :> obj))
+                                             
                     ("# Use which item?", Nothing  :>_) :: items
                 | GetDirectionState response -> 
                     match response with                    
