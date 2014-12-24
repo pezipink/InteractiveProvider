@@ -693,15 +693,9 @@ type ``The North Pole``() =
                     let fov = GrottoCore.calculateFov (fst startLocation) dungeon rooms
                     let levelData = [1,{ items=items; entities=monsters; tiles=dungeon; discoveredTiles=fov; rooms=rooms }] |> Map.ofList
                     let h = rnd.Next(12,15)
-                    let pies =                     
-                        [
-                         {itemType = MincePie Teleport; loc = None; id=Guid.NewGuid()}
-                         {itemType = MincePie Teleport; loc = None; id=Guid.NewGuid()}
-                         {itemType = MincePie Teleport; loc = None; id=Guid.NewGuid()}
-                         {itemType = MincePie Teleport; loc = None; id=Guid.NewGuid()}
-                        ]
+               
                     let santa = { entity={loc=(fst startLocation);etype=Santa;active=true;health=(h,h)} ; 
-                                  hunger = 100; inventory = pies; lastHealTurn = 0; exp = 0; presents=0
+                                  hunger = 100; inventory = []; lastHealTurn = 0; exp = 0; presents=0
                                   turnsLeftUnderTheInfluence=0 } 
                     { state with state = MainState; levelData=levelData;currentFov=fov;santa=santa} :>_
                 | _ -> state :>_
