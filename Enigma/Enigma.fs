@@ -44,7 +44,6 @@ type MainMenuResponses =
     | SetRingPosition
     | CreatePlugMapping
     | Translate
-    | Translated
 
 type EnigmaTypes =
     | Core of EnigmaCore.Enigma 
@@ -85,6 +84,7 @@ let showTranslation(text,continutation) =
 let rec mainMenu(enigma:EnigmaTypes) = 
     let printMachine (e:EnigmaCore.Enigma) =
         let sb = StringBuilder()
+        // .. code here prints stuff about the machine
         let getws (WheelPosition c) = c |> string
         let getrs (RingSetting c) = c |> string
         let getrf (Reflector c) = c |> string
@@ -178,22 +178,20 @@ let rec mainMenu(enigma:EnigmaTypes) =
                     (fun s -> "Choose a letter"),
                     (fun s -> 
                         let e = apply (WheelPosition s.[0]) rotor
-                        mainMenu(Core e) :> IInteractiveState 
-                        ),
+                        mainMenu(Core e) :> IInteractiveState ),
                     (fun _ -> false) ) :> IInteractiveState )
         | SetRingPosition -> 
             let apply l  = function
                 | LeftRotor -> { e.Enigma with Left = { fst e.Enigma.Left with RingSetting = l }, snd e.Enigma.Left }
-                | MiddleRotor -> { e.Enigma with Middle = { fst e.Enigma.Middle with RingSetting = l }, snd e.Enigma.Left }
-                | RightRotor -> { e.Enigma with Right = { fst e.Enigma.Right with RingSetting = l }, snd e.Enigma.Left }
+                | MiddleRotor -> { e.Enigma with Middle = { fst e.Enigma.Middle with RingSetting = l }, snd e.Enigma.Middle }
+                | RightRotor -> { e.Enigma with Right = { fst e.Enigma.Right with RingSetting = l }, snd e.Enigma.Right }
 
             selectMachineRotor(fun rotor ->                  
                 enterText("",[for i in 'A'..'Z' -> sprintf "%c" i, box (string i)],
                     (fun s -> "Choose a letter"),
                     (fun s -> 
                         let e = apply (RingSetting s.[0]) rotor
-                        mainMenu(Core e) :> IInteractiveState 
-                        ),
+                        mainMenu(Core e) :> IInteractiveState),
                     (fun _ -> false) ) :> IInteractiveState )
         | CreatePlugMapping -> 
             let getList (PlugBoard s) = s
