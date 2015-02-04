@@ -1,14 +1,4 @@
-﻿//namespace InteractiveProvider.Interfaces
-//
-//type IInteractiveClient =
-//    abstract member DisplayText : string
-//    abstract member DisplayOptions : (string * int) list
-//
-//type IInteractiveServer = 
-//    abstract member NewState : IInteractiveClient
-//    abstract member ProcessResponse : IInteractiveClient * int -> IInteractiveClient
-
-namespace InteractiveProvider
+﻿namespace InteractiveProvider
 
 open InteractiveProvider.Interfaces
 open Samples.FSharp.ProvidedTypes
@@ -22,19 +12,13 @@ type InteractiveProvider (config : TypeProviderConfig) as this =
         
         System.AppDomain.CurrentDomain.add_AssemblyResolve( System.ResolveEventHandler(fun _ e -> 
             let fi = System.IO.FileInfo(config.RuntimeAssembly)
-            Assembly.LoadFile(System.IO.Path.Combine(fi.DirectoryName, ( e.Name.Substring(0,e.Name.IndexOf(",")) + ".dll" )))))
+            let expectedLocation = System.IO.Path.Combine(fi.DirectoryName, ( e.Name.Substring(0,e.Name.IndexOf(",")) + ".dll" ))
+            if System.IO.File.Exists expectedLocation then Assembly.LoadFrom expectedLocation else null)
+            )
 
     let ns = "PinkSquirrels.Interactive"
     let asm = Assembly.GetExecutingAssembly()
-    
-    
-//    do coreType.AddXmlDoc("<summary><para>Welcome to the pinksquirrellabs.com interactive type provider!</para>
-//                                    <para>With this type provider you can play many text-based games, from classic BASIC games</para>
-//                                    <para>through to MineSweeper and Fighting Fantasy!</para>
-//                                    <para></para>
-//                                    <para>You can also easily write your own games, see github and please send a pull request!</para></summary>")
-//    
-    
+
     let createTypes (location:string) (rootTypeName:string) =
         let newName() = System.Guid.NewGuid().ToString()
         let rootType = ProvidedTypeDefinition(asm,ns,rootTypeName, None, HideObjectMethods = true)    
@@ -52,9 +36,15 @@ type InteractiveProvider (config : TypeProviderConfig) as this =
                     p ))
             ty
         
+        let toIngore =
+            ["InteractiveProvider.dll"
+             "InteractiveProviderInterfaces.dll"
+             "Fsharp.Core.dll"
+             "Fsharp.Compiler.Service.dll"]
+
         let getGameServers() =
             System.IO.Directory.GetFiles(location,"*.dll")
-            |> Array.filter(fun file -> file <> "InteractiveProvider.dll" && file <> "InteractiveProviderInterfaces.dll"  && file <> "FSharp.Core.dll" )
+            |> Array.filter(fun file ->  not <| List.exists ((=)file) toIngore)
             |> Array.collect(fun file ->
                 try
                     let asm = Assembly.LoadFile(file)

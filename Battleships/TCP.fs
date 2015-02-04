@@ -41,23 +41,45 @@ type Socket with
 let private ipHostInfo = Dns.Resolve(Dns.GetHostName())
 let private port = 42000
 
-type SocketType = Server | Client of string
-
-let createSocket socketType = 
-    let socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+type SocketType = Server of string | Client of string
+let socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+let mutable listening = false
+let createSocket socketType  = 
     match socketType with
-    | Server ->
-        let localIPAddress = ipHostInfo.AddressList.[0]    
-        let localEndPoint = new IPEndPoint(localIPAddress, port)
-        socket.Bind(localEndPoint)        
+    | Server ipString ->
+        if socket.IsBound = false then
+            let localIPAddress = IPAddress.Parse(ipString)
+            let localEndPoint = new IPEndPoint(localIPAddress, port)
+            socket.Bind(localEndPoint)        
     | Client ipString ->
         let ipAddress = IPAddress.Parse(ipString)
         let remoteEndPoint  = new IPEndPoint(ipAddress, port)
-        socket.Bind(remoteEndPoint)
+        socket.Connect(remoteEndPoint)
     socket
 
 
+type SocketCommand =
+    | AcceptClient of (unit -> unit)
+    | AcceptData
+    | SendData
 
+let john = MailboxProcessor<SocketCommand>.Start(fun inbox -> 
+    let id = System.Guid.NewGuid()
+    let rec loop state = async{
+        let! msg = inbox.Receive()
+        match msg with
+        | AcceptClient f -> 
+            socket.Listen 1
+            try
+            let! result = socket.AcceptAsync()
+            f()
+            with ex -> ()
+            return! loop state
+
+        | _ -> return! loop state
+    }
+    loop ()
+)
 //
 //let connectSendReceive (socket : Socket) =
 //    async {

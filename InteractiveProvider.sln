@@ -15,6 +15,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Battleships", "Battleships\
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "XMAS_2014", "XMAS_2014\XMAS_2014.fsproj", "{B9AAD464-FA6B-49F3-AC20-8E20042F96A1}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Enigma", "Enigma\Enigma.fsproj", "{9F6E2A4D-2A51-417B-B218-9754AEC19CDB}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSI", "FSI\FSI.fsproj", "{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{B9AAD464-FA6B-49F3-AC20-8E20042F96A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9AAD464-FA6B-49F3-AC20-8E20042F96A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9AAD464-FA6B-49F3-AC20-8E20042F96A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F6E2A4D-2A51-417B-B218-9754AEC19CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F6E2A4D-2A51-417B-B218-9754AEC19CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F6E2A4D-2A51-417B-B218-9754AEC19CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F6E2A4D-2A51-417B-B218-9754AEC19CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
