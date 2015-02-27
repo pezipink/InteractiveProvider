@@ -13,6 +13,8 @@ Rock Paper Scissors
 
 Chemistry
 
+2048
+
 Fighting Fantasy (UNFINISHED!)
 
 Battleships (UNFINISHED!)
