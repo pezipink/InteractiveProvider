@@ -20,3 +20,7 @@ Fighting Fantasy (UNFINISHED!)
 Battleships (UNFINISHED!)
 
 Santa's Grotto (Roguelike)
+
+Enigma Machine (not really a game but whatever)
+
+Don Syme 2.0 Cowherding Edition (coming soon!)
