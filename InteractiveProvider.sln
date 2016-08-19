@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "InteractiveProvider", "InteractiveProvider\InteractiveProvider.fsproj", "{963E5CF4-A8D4-4ED3-B5FB-DC74E828E30B}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Enigma", "Enigma\Enigma.fsproj", "{9F6E2A4D-2A51-417B-B218-9754AEC19CDB}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSI", "FSI\FSI.fsproj", "{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DonSyme", "CowHerding\DonSyme.fsproj", "{570D4CBC-59D5-4EB7-82D3-943C234C5F0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{570D4CBC-59D5-4EB7-82D3-943C234C5F0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{570D4CBC-59D5-4EB7-82D3-943C234C5F0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{570D4CBC-59D5-4EB7-82D3-943C234C5F0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{570D4CBC-59D5-4EB7-82D3-943C234C5F0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
