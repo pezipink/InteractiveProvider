@@ -9,15 +9,12 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BASIC_Anniversary", "BASIC_
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "InteractiveProviderInterfaces", "InteractiveProviderInterfaces\InteractiveProviderInterfaces.fsproj", "{345CDABE-8DD0-47D0-9B0A-497A96B1DCE2}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FightingFantasy", "FightingFantasy\FightingFantasy.fsproj", "{04985F56-C0F6-4E55-B50A-FFE1B1A12999}"
-EndProject
+
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Battleships", "Battleships\Battleships.fsproj", "{09F966E5-B1A9-41A9-85A4-C19FEC2DF4B8}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "XMAS_2014", "XMAS_2014\XMAS_2014.fsproj", "{B9AAD464-FA6B-49F3-AC20-8E20042F96A1}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Enigma", "Enigma\Enigma.fsproj", "{9F6E2A4D-2A51-417B-B218-9754AEC19CDB}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSI", "FSI\FSI.fsproj", "{7402E8D7-7E93-4ADE-B2D9-BAD4A8CA9B27}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DonSyme", "CowHerding\DonSyme.fsproj", "{570D4CBC-59D5-4EB7-82D3-943C234C5F0F}"
 EndProject

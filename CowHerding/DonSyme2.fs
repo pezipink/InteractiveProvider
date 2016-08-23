@@ -56,26 +56,39 @@ let formatLevel level =
     
 let rec play(state:MenuTypes) =
     let level = state.Data
-    { displayOptions = fun _ -> 
-        [
-            "# View Map", box None
-            "North", box <| Some North;
-            "East", box <| Some East;
-            "South", box <| Some South;
-            "West", box <| Some West;
-        ] 
-      displayText = fun _ -> 
-        formatLevel level  
-      processResponse = fun (s,r) -> 
-        match (unbox<Direction option> r) with
-        | None -> play state :> _
-        | Some dir ->
-            let d = moveDon dir level.Data
-            play(Game {level with Data = d}) :> _
-      state = state }
+    if levelComplete level then 
+        { displayOptions = fun _ -> 
+            [
+                "# View Map", box false          
+                "CONGRATULATIONS!", box true
+            ] 
+          displayText = fun _ -> 
+            formatLevel level  
+          processResponse = fun (s,r) -> 
+            match (unbox<bool> r) with
+            | false -> play state :> _
+            | true ->collectionSelect() :> _                
+          state = state }
+    else
+       { displayOptions = fun _ -> 
+            [
+                "# View Map", box None
+                "North", box <| Some North;
+                "East", box <| Some East;
+                "South", box <| Some South;
+                "West", box <| Some West;
+            ] 
+         displayText = fun _ -> 
+            formatLevel level  
+         processResponse = fun (s,r) -> 
+            match (unbox<Direction option> r) with
+            | None -> play state :> _
+            | Some dir ->
+                let d = moveDon dir level.Data
+                play(Game {level with Data = d}) :> _
+         state = state }
 
-
-let rec levelSelect(state:MenuTypes) =
+and levelSelect(state:MenuTypes) =
     let collection = state.Collection
     { displayOptions = fun _ ->
         [for level in collection.Levels do
@@ -93,16 +106,14 @@ let rec levelSelect(state:MenuTypes) =
       processResponse = fun (_,level) -> play (Game (level:?>_)) :> _
       state = LevelSelect collection } 
 
-
-let collectionSelect() = 
+and collectionSelect() = 
     let collections = 
         let current = FileInfo(System.Reflection.Assembly.GetCallingAssembly().Location)
         let dir = current.Directory
         Directory.GetFiles(dir.FullName)
         |> Array.map FileInfo
         |> Array.filter(fun x -> x.Extension = ".slc")
-        |> Array.map(fun x -> CowLevel.Load(x.FullName))
-        |> Array.map Cows.readLevels
+        |> Array.map(fun x -> CowLevel.Load(x.FullName) |> Cows.readLevels)
     { displayOptions = fun _ ->
         [for collection in collections do
             yield collection.Title, box collection] 
