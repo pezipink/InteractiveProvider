@@ -107,20 +107,25 @@ let moveDon direction map =
         |> Map.add (x',y') Cow
         |> Map.add (x,y) (Don false)
         
-    // Moving a cow from a field onto dirt
+    // Moving a cow from a shed onto a field
     | [(x,y),Shed true; (x',y'),Field] -> 
         map
         |> Map.add (dx,dy) (oldTile)
         |> Map.add (x',y') Cow
         |> Map.add (x,y) (Don true)
         
-    // moving a cow from a field or dirt to a new field
-    | [(x,y),Shed true; (x',y'),Shed false] 
-    | [(x,y),Cow;        (x',y'),Shed false] -> 
+    // moving a cow from a shed or field to a shed
+    | [(x,y),Shed true; (x',y'),Shed false] ->
         map
         |> Map.add (dx,dy) (oldTile)
         |> Map.add (x',y') (Shed true)
         |> Map.add (x,y) (Don true)
+        
+    | [(x,y),Cow;        (x',y'),Shed false] -> 
+        map
+        |> Map.add (dx,dy) (oldTile)
+        |> Map.add (x',y') (Shed true)
+        |> Map.add (x,y) (Don false)
             
     | _ -> map
     
@@ -139,7 +144,6 @@ let levelComplete level =
         | Shed false -> true
         | _ -> false)
     |> fun x -> x.Count = 0
-
 let movements original moves =
     let data = (original.Data,moves) ||> List.fold(fun map move -> moveDon move map)
     {original with Data = data}
