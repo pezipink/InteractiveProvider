@@ -87,8 +87,22 @@ let start() =
         ["--> USE THE FORCE!",box 1]
       displayText = fun _ -> 
         "Welcome to the Rogue One Type Provider!
+   
+   |                   |  
+   |                   |  
+   |                   |  
+   |        /^\        |    
+   ||===I||(-@-)||I===||
+   |        \_/        |  
+   |                   |
+   |                   |
+   |                   |
+   |                   |
+   |                   |
+
         Help overcome the Empire's legacy database system with the power of the force and F# type providers!
         Using this type provider you can access the remote database controls, but can you operate the crane to collect the disk quick enough?"
+        |> wrapAndSplit
       processResponse = fun (e,i) -> 
         match i :?> int with
         | 1 -> game(createState()) :> _ 
