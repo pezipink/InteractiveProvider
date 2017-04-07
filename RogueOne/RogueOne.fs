@@ -12,7 +12,6 @@ type RogueOneState =
 
 let height = 10
 let width = 10
-let tickDelay = 500000L
 let getRandomPos() =
     (rnd.Next(0,width),rnd.Next(0,height))
 
@@ -28,7 +27,7 @@ let createState() =
     let crane = getGoodPos disk
     Game(System.DateTime.Now.Ticks,crane,disk)
     
-let updateLevel (Game(ticks,(cx,cy),(dx,dy)))  input =
+let updateLevel (Game(ticks,(cx,cy),(dx,dy)))  input tickDelay =
     let (cx',cy') =
         match input with
         | 1 -> (cx,cy-1)
@@ -40,7 +39,7 @@ let updateLevel (Game(ticks,(cx,cy),(dx,dy)))  input =
         let newPos = 
             if cx' > width || cx' < 0 || cy' > height || cy' < 0 then
                 cx,cy
-            else 
+              else 
                 cx',cy'
         let dx',dy',ticks' =
             if System.DateTime.Now.Ticks- ticks > tickDelay then
@@ -49,8 +48,9 @@ let updateLevel (Game(ticks,(cx,cy),(dx,dy)))  input =
             else dx,dy,ticks
         Game(ticks',(cx',cy'),(dx',dy'))
 
-let formatLevel (Game(ticks,crane,disk)) =
+let formatLevel (Game(ticks,crane,disk)) delay=
     let sb = System.Text.StringBuilder()
+    sb.AppendLine("Current delay: " + (string delay)) |> ignore
     let (~~) (s:string) = sb.Append s |> ignore
     let (~~~) (s:string) = sb.AppendLine s |> ignore
     for y = 0 to height-1 do
@@ -68,23 +68,26 @@ let rec win() =
      processResponse = fun _ -> win() :> _
      state = Win }
         
-let rec game(state:RogueOneState) =
+let rec game(state:RogueOneState, delay) =
     { displayOptions = fun _ -> 
         ["Up", box 1
          "Down", box 2
          "Left", box 3
          "Right", box 4]
-      displayText = fun _ -> formatLevel state
+      displayText = fun _ -> formatLevel state delay
       processResponse = fun (e,i) ->
-            match updateLevel state (i:?>int) with
-            | Game(_,_,_) as g -> game g :> _
+            match updateLevel state (i:?>int) delay with
+            | Game(_,_,_) as g -> game (g, delay) :> _
             | Win -> win() :> _
       state = state 
     }
 
 let start() = 
+    
     { displayOptions = fun _ -> 
-        ["--> USE THE FORCE!",box 1]
+        [("Slow", box 5000000L);
+         ("Faster", box 900000L);
+         ("Ross", box 500000L) ;]
       displayText = fun _ -> 
         "Welcome to the Rogue One Type Provider!
    
@@ -104,9 +107,9 @@ let start() =
         Using this type provider you can access the remote database controls, but can you operate the crane to collect the disk quick enough?"
         |> wrapAndSplit
       processResponse = fun (e,i) -> 
-        match i :?> int with
-        | 1 -> game(createState()) :> _ 
-        | _ -> failwith "!" :> _
+        match i :?> int64 with
+        | 1L -> game(createState(), 900000L) :> _ 
+        | delay -> game(createState(), delay) :> _
       state = Introduction } 
 
 type RogueOne() =
